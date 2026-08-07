@@ -8,7 +8,8 @@ const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
-    const schedules = await Schedule.find({ userId, isActive: true })
+    // Đã sửa userId -> user
+    const schedules = await Schedule.find({ user: userId, isActive: true })
       .sort({ dayOfWeek: 1, startTime: 1 });
     
     res.json(schedules);
@@ -29,8 +30,9 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' });
     }
 
+    // Đã sửa userId -> user
     const newSchedule = new Schedule({
-      userId,
+      user: userId,
       subject,
       room: room || '',
       dayOfWeek,
@@ -55,7 +57,8 @@ router.put('/:id', auth, async (req, res) => {
     const userId = req.user.id || req.user._id;
     const { subject, room, dayOfWeek, session, startTime, endTime, color } = req.body;
 
-    const schedule = await Schedule.findOne({ _id: req.params.id, userId });
+    // Đã sửa userId -> user
+    const schedule = await Schedule.findOne({ _id: req.params.id, user: userId });
 
     if (!schedule) {
       return res.status(404).json({ message: 'Không tìm thấy môn học' });
@@ -83,7 +86,8 @@ router.delete('/:id', auth, async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
 
-    const schedule = await Schedule.findOneAndDelete({ _id: req.params.id, userId });
+    // Đã sửa userId -> user
+    const schedule = await Schedule.findOneAndDelete({ _id: req.params.id, user: userId });
 
     if (!schedule) {
       return res.status(404).json({ message: 'Không tìm thấy môn học để xóa' });
