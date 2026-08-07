@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Schedule.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const DAYS = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
 const SESSIONS = [
   { value: 'morning', label: 'Sáng', times: ['07:00', '08:00', '09:00', '10:00', '11:00'] },
@@ -36,7 +37,7 @@ function Schedule() {
 
   const fetchSchedules = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/schedules', {
+      const response = await axios.get(`${API_URL}/api/schedules`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSchedules(response.data);
@@ -117,7 +118,6 @@ function Schedule() {
       return new Date(`${value}T00:00`);
     }
     const parsed = new Date(value);
-    // Convert UTC date strings from backend to local date-only value
     return new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate()));
   };
 
@@ -219,12 +219,12 @@ function Schedule() {
       const data = buildSchedulePayload();
       
       if (editingSchedule) {
-        await axios.put(`http://localhost:5000/api/schedules/${editingSchedule._id}`, data, {
+        await axios.put(`${API_URL}/api/schedules/${editingSchedule._id}`, data, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Cập nhật lịch học thành công');
       } else {
-        await axios.post('http://localhost:5000/api/schedules', data, {
+        await axios.post(`${API_URL}/api/schedules`, data, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Thêm lịch học thành công');
@@ -244,7 +244,7 @@ function Schedule() {
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa lịch học này?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/schedules/${id}`, {
+        await axios.delete(`${API_URL}/api/schedules/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchSchedules();
@@ -536,7 +536,7 @@ function Schedule() {
                   value={formData.repeat}
                   onChange={(e) => setFormData({...formData, repeat: e.target.value})}
                 >
-                    <option value="none">Không lặp</option>
+                  <option value="none">Không lặp</option>
                   <option value="daily">Hàng ngày</option>
                   <option value="weekly">Hàng tuần</option>
                   <option value="monthly">Hàng tháng</option>

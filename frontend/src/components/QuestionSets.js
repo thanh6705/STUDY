@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './QuestionSets.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 function QuestionSets() {
   const [questionSets, setQuestionSets] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -16,7 +18,6 @@ function QuestionSets() {
     description: '',
     questions: []
   });
-  // State cho việc thêm câu hỏi mới
   const [newQuestion, setNewQuestion] = useState({
     question: '',
     options: ['', '', '', ''],
@@ -31,7 +32,7 @@ function QuestionSets() {
 
   const fetchQuestionSets = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/questionsets', {
+      const response = await axios.get(`${API_URL}/api/questionsets`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setQuestionSets(response.data);
@@ -55,12 +56,12 @@ function QuestionSets() {
     }
     try {
       if (editingSet) {
-        await axios.put(`http://localhost:5000/api/questionsets/${editingSet._id}`, formData, {
+        await axios.put(`${API_URL}/api/questionsets/${editingSet._id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Cập nhật đề ôn luyện thành công');
       } else {
-        await axios.post('http://localhost:5000/api/questionsets', formData, {
+        await axios.post(`${API_URL}/api/questionsets`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Tạo đề ôn luyện thành công');
@@ -78,7 +79,7 @@ function QuestionSets() {
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa đề ôn luyện này?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/questionsets/${id}`, {
+        await axios.delete(`${API_URL}/api/questionsets/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchQuestionSets();
@@ -105,7 +106,6 @@ function QuestionSets() {
     setShowQuestionList(false);
   };
 
-  // Bắt đầu thêm câu hỏi mới
   const startAddQuestion = () => {
     if (formData.questions.length >= 80) {
       toast.error('Tối đa 80 câu hỏi trong 1 bộ');
@@ -119,14 +119,11 @@ function QuestionSets() {
     setIsAddingQuestion(true);
   };
 
-  // Hủy thêm câu hỏi
   const cancelAddQuestion = () => {
     setIsAddingQuestion(false);
   };
 
-  // Lưu câu hỏi vào danh sách
   const saveQuestion = () => {
-    // Validate
     if (!newQuestion.question.trim()) {
       toast.error('Vui lòng nhập câu hỏi');
       return;
@@ -151,7 +148,6 @@ function QuestionSets() {
   };
 
   const saveQuestionAndContinue = () => {
-    // Validate
     if (!newQuestion.question.trim()) {
       toast.error('Vui lòng nhập câu hỏi');
       return;
@@ -175,7 +171,6 @@ function QuestionSets() {
     toast.success('Đã thêm câu hỏi! Tiếp tục tạo câu mới.');
   };
 
-  // Xóa câu hỏi khỏi danh sách
   const removeQuestion = (index) => {
     const newQuestions = formData.questions.filter((_, i) => i !== index);
     setFormData({ ...formData, questions: newQuestions });
@@ -405,7 +400,6 @@ function QuestionSets() {
                   </div>
                 )}
 
-                {/* Form thêm câu hỏi mới */}
                 {isAddingQuestion && (
                   <div className="add-question-form">
                     <div className="question-number">
@@ -457,7 +451,6 @@ function QuestionSets() {
                   </div>
                 )}
 
-                {/* Danh sách câu hỏi đã thêm */}
                 {formData.questions.length > 0 && showQuestionList && (
                   <div className="questions-list">
                     {formData.questions.map((q, index) => (

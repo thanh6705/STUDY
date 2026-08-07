@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Home.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const ICONS = ['📝', '📚', '💡', '🔬', '📊', '💻', '📐', '🎵', '🎨', '🧪', '📖', '✏️'];
 const COLORS = ['#ffffff', '#ffebee', '#f3e5f5', '#e8eaf6', '#e0f7fa', '#e8f5e9', '#fff3e0', '#fce4ec'];
 
@@ -23,7 +24,7 @@ function Home() {
 
   const fetchNotes = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/notes', {
+      const response = await axios.get(`${API_URL}/api/notes`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotes(response.data);
@@ -43,12 +44,12 @@ function Home() {
     e.preventDefault();
     try {
       if (editingNote) {
-        await axios.put(`http://localhost:5000/api/notes/${editingNote._id}`, formData, {
+        await axios.put(`${API_URL}/api/notes/${editingNote._id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Cập nhật ghi chú thành công');
       } else {
-        await axios.post('http://localhost:5000/api/notes', formData, {
+        await axios.post(`${API_URL}/api/notes`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Tạo ghi chú thành công');
@@ -66,7 +67,7 @@ function Home() {
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa ghi chú này?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/notes/${id}`, {
+        await axios.delete(`${API_URL}/api/notes/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchNotes();
@@ -80,7 +81,7 @@ function Home() {
 
   const handlePin = async (note) => {
     try {
-      await axios.put(`http://localhost:5000/api/notes/${note._id}`, {
+      await axios.put(`${API_URL}/api/notes/${note._id}`, {
         isPinned: !note.isPinned
       }, {
         headers: { Authorization: `Bearer ${token}` }
