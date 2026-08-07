@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FaMoon, FaSun, FaKey, FaUser } from 'react-icons/fa';
+import { FaMoon, FaSun, FaKey } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import './Settings.css';
 
 function Settings() {
-  const { user, changePassword } = useAuth();
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const { changePassword } = useAuth();
+  
+  // Kiểm tra theme khởi tạo từ localStorage
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
+
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
@@ -14,11 +19,19 @@ function Settings() {
     confirmPassword: ''
   });
 
+  // Áp dụng class dark-theme chuẩn vào body mỗi khi theme thay đổi
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.body.className = newTheme;
     toast.success(`Đã chuyển sang chế độ ${newTheme === 'light' ? 'sáng' : 'tối'}`);
   };
 
@@ -47,19 +60,7 @@ function Settings() {
       <h2>⚙️ Cài đặt</h2>
 
       <div className="settings-section">
-        <div className="settings-card">
-          <div className="settings-item">
-            <div className="settings-item-left">
-              <FaUser className="settings-icon" />
-              <div>
-                <h4>Thông tin tài khoản</h4>
-                <p className="settings-detail">Tên đăng nhập: {user?.username}</p>
-                <p className="settings-detail">Email: {user?.email}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        {/* Đổi Mật Khẩu */}
         <div className="settings-card">
           <div className="settings-item">
             <div className="settings-item-left">
@@ -108,6 +109,7 @@ function Settings() {
           )}
         </div>
 
+        {/* Chế độ Giao diện Sáng/Tối */}
         <div className="settings-card">
           <div className="settings-item">
             <div className="settings-item-left">
@@ -115,7 +117,7 @@ function Settings() {
               <div>
                 <h4>Giao diện</h4>
                 <p className="settings-detail">
-                  {theme === 'light' ? 'Chế độ sáng' : 'Chế độ tối'}
+                  {theme === 'light' ? 'Chế độ sáng' : 'Chế độ tối (Dark Mode)'}
                 </p>
               </div>
             </div>

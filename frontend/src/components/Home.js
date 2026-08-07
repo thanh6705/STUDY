@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { FaPlus, FaTrash, FaEdit, FaThumbtack } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaThumbtack, FaSearch, FaFire, FaBookOpen } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Home.css';
@@ -11,6 +11,7 @@ const COLORS = ['#ffffff', '#ffebee', '#f3e5f5', '#e8eaf6', '#e0f7fa', '#e8f5e9'
 
 function Home() {
   const [notes, setNotes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ function Home() {
     color: '#ffffff'
   });
   const [selectedNote, setSelectedNote] = useState(null);
-  const { token } = useAuth();
+  const { user, token } = useAuth();
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -101,16 +102,35 @@ function Home() {
     });
   };
 
-  const openNote = (note) => {
-    setSelectedNote(note);
-  };
+  // Lọc ghi chú theo từ khóa tìm kiếm
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="home-container">
-      <div className="home-header">
-        <div className="header-left">
-          <h2>📝 Ghi chú của tôi</h2>
-          <p>{notes.length} ghi chú</p>
+      {/* Banner Lời chào & Thống kê */}
+      <div className="welcome-banner">
+        <div className="welcome-text">
+          <h2>Chào {user?.username || 'bạn'}! 👋</h2>
+          <p>Hôm nay bạn muốn ghi chú hay học môn gì?</p>
+        </div>
+        <div className="streak-badge">
+          <FaFire className="fire-icon" /> <span>{notes.length} Ghi chú</span>
+        </div>
+      </div>
+
+      {/* Thanh tìm kiếm & Nút tạo ghi chú */}
+      <div className="home-action-bar">
+        <div className="search-box">
+          <FaSearch className="search-icon" />
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm ghi chú..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <button className="create-note-btn" onClick={() => {
           resetForm();
@@ -121,18 +141,32 @@ function Home() {
         </button>
       </div>
 
+      {/* Danh sách ghi chú */}
       <div className="notes-grid">
-        {notes.length === 0 ? (
-          <div className="empty-state">
-            <p>Chưa có ghi chú nào. Hãy tạo ghi chú đầu tiên!</p>
+        {filteredNotes.length === 0 ? (
+          <div className="empty-state-card">
+            <div className="empty-icon-wrapper">
+              <FaBookOpen />
+            </div>
+            <h3>{searchTerm ? 'Không tìm thấy ghi chú phù hợp' : 'Chưa có ghi chú nào'}</h3>
+            <p>{searchTerm ? 'Hãy thử tìm kiếm với từ khóa khác' : 'Lưu lại kiến thức quan trọng hoặc ý tưởng bài học ngay tại đây nhé!'}</p>
+            {!searchTerm && (
+              <button className="create-note-btn" onClick={() => {
+                resetForm();
+                setEditingNote(null);
+                setShowForm(true);
+              }}>
+                <FaPlus /> Tạo ghi chú đầu tiên
+              </button>
+            )}
           </div>
         ) : (
-          notes.map(note => (
+          filteredNotes.map(note => (
             <div 
               key={note._id} 
               className={`note-card ${note.isPinned ? 'pinned' : ''}`}
               style={{ backgroundColor: note.color || '#ffffff' }}
-              onClick={() => openNote(note)}
+              onClick={() => setSelectedNote(note)}
             >
               <div className="note-card-header">
                 <span className="note-icon">{note.icon}</span>
@@ -161,6 +195,7 @@ function Home() {
         )}
       </div>
 
+      {/* Modal Chi tiết Ghi chú */}
       {selectedNote && (
         <div className="modal-overlay" onClick={() => setSelectedNote(null)}>
           <div className="modal-content note-detail" onClick={e => e.stopPropagation()}>
@@ -181,6 +216,7 @@ function Home() {
         </div>
       )}
 
+      {/* Modal Form Tạo/Sửa */}
       {showForm && (
         <div className="modal-overlay" onClick={() => {
           setShowForm(false);

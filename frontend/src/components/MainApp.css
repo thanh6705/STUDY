@@ -2,35 +2,31 @@
   display: flex;
   min-height: 100vh;
   background: #f5f7fa;
+  position: relative;
 }
 
-/* Sidebar */
+/* ================= SIDEBAR (DESKTOP) ================= */
 .sidebar {
-  width: 240px;
+  width: 250px;
   background: white;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   z-index: 1000;
-  overflow: hidden;
-}
-
-.sidebar.closed {
-  width: 60px;
+  transition: transform 0.3s ease;
 }
 
 .sidebar-header {
-  padding: 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 70px;
+  height: 65px;
 }
 
 .sidebar-brand {
@@ -42,7 +38,7 @@
 }
 
 .brand-icon {
-  font-size: 28px;
+  font-size: 24px;
 }
 
 .brand-text {
@@ -50,28 +46,22 @@
   white-space: nowrap;
 }
 
-.sidebar-toggle {
+.sidebar-close-btn {
+  display: none; /* Chi hien thi tren Mobile */
   background: transparent;
   border: none;
-  font-size: 18px;
+  font-size: 20px;
   color: #888;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.sidebar-toggle:hover {
-  background: #f0f0f0;
-  color: #333;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 12px 8px;
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  overflow-y: auto;
 }
 
 .sidebar-link {
@@ -82,17 +72,19 @@
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: #666;
+  color: #555;
   text-decoration: none;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .sidebar-link svg {
-  font-size: 20px;
-  min-width: 20px;
+  font-size: 18px;
+  min-width: 18px;
 }
 
 .sidebar-link:hover {
@@ -103,7 +95,7 @@
 .sidebar-link.active {
   background: #e8edff;
   color: #667eea;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .sidebar-link.logout {
@@ -115,79 +107,14 @@
   background: #fde8e8;
 }
 
-.sidebar.closed .sidebar-link {
-  justify-content: center;
-  padding: 12px;
-}
-
-.sidebar.closed .sidebar-link span {
-  display: none;
-}
-
-.sidebar.closed .sidebar-brand .brand-text {
-  display: none;
-}
-
-/* Main Content */
+/* ================= MAIN CONTENT ================= */
 .main-content {
   flex: 1;
-  margin-left: 240px;
-  transition: margin-left 0.3s ease;
+  margin-left: 250px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.main-content.full {
-  margin-left: 60px;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 240px;
-    height: 100vh;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    z-index: 9999;
-    background: white;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.12);
-  }
-
-  .sidebar.closed {
-    transform: translateX(-100%);
-    width: 240px;
-  }
-
-  .main-content {
-    margin-left: 0;
-    min-height: 100vh;
-  }
-
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 999;
-  }
-
-  .app-content {
-    padding: 12px 16px;
-  }
-
-  .sidebar-toggle {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 10000;
-    background: white;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-  }
+  transition: margin-left 0.3s ease;
 }
 
 .app-header {
@@ -195,6 +122,19 @@
   color: white;
   padding: 16px 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-menu-btn {
+  display: none; /* An nut 3 gach tren PC */
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
 }
 
 .header-content h1 {
@@ -214,36 +154,59 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
-/* Responsive */
+/* ================= RESPONSIVE MOBLIE (CHUYỂN THÀNH DRAWER 3 GẠCH) ================= */
 @media (max-width: 768px) {
+  /* An Sidebar mac dinh sang ben trai */
   .sidebar {
-    width: 200px;
+    transform: translateX(-100%);
+    width: 260px;
+    z-index: 10001;
   }
-  
-  .sidebar.closed {
-    width: 0;
-    box-shadow: none;
+
+  /* Khi active state open thi trượt vào */
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   }
-  
+
+  .sidebar-close-btn {
+    display: block;
+  }
+
+  /* Loop phu mờ phia sau */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+  }
+
+  /* Bo margin-left tren mobile */
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
   }
-  
-  .main-content.full {
-    margin-left: 0;
+
+  .mobile-menu-btn {
+    display: block;
   }
-  
-  .app-content {
-    padding: 12px 16px;
-  }
-  
+
   .app-header {
-    padding: 12px 16px;
+    padding: 14px 20px;
   }
-  
-  .sidebar.closed .sidebar-brand .brand-text {
-    display: none;
+
+  .app-content {
+    padding: 14px;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

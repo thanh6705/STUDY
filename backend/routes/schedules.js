@@ -1,147 +1,98 @@
 const express = require('express');
 const router = express.Router();
-const { body, validationResult } = require('express-validator');
 const Schedule = require('../models/Schedule');
 const auth = require('../middleware/auth');
 
-// Get all schedules
+// @route   GET /api/schedules
+// @desc    Lấy danh sách thời khóa biểu của user
 router.get('/', auth, async (req, res) => {
   try {
-    const schedules = await Schedule.find({
-      userId: req.userId,
-      isActive: true
-    }).sort({ dayOfWeek: 1, startTime: 1 });
+    const userId = req.user.id || req.user._id;
+    const schedules = await Schedule.find({ userId, isActive: true })
+      .sort({ dayOfWeek: 1, startTime: 1 });
+    
     res.json(schedules);
   } catch (error) {
-    console.error('Get schedules error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Lỗi GET schedules:', error);
+    res.status(500).json({ message: 'Không thể tải thời khóa biểu' });
   }
 });
 
-// Get schedules by date range
-router.get('/range', auth, async (req, res) => {
+// @route   POST /api/schedules
+// @desc    Thêm môn học mới
+router.post('/', auth, async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'Start date and end date are required' });
+    const { subject, room, dayOfWeek, session, startTime, endTime, color } = req.body;
+    const userId = req.user.id || req.user._id;
+
+    if (!subject || !dayOfWeek || !session || !startTime || !endTime) {
+      return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' });
     }
 
-    const schedules = await Schedule.find({
-      userId: req.userId,
-      isActive: true,
-      $or: [
-        { 
-          startDate: { $lte: new Date(endDate) }, 
-          endDate: { $gte: new Date(startDate) } 
-        },
-        { 
-          startDate: { $lte: new Date(endDate) }, 
-          endDate: null 
-        }
-      ]
+    const newSchedule = new Schedule({
+      userId,
+      subject,
+      room: room || '',
+      dayOfWeek,
+      session,
+      startTime,
+      endTime,
+      color: color || '#e3f2fd'
     });
-    res.json(schedules);
+
+    const savedSchedule = await newSchedule.save();
+    res.status(201).json(savedSchedule);
   } catch (error) {
-    console.error('Get schedules range error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Lỗi POST schedule:', error);
+    res.status(500).json({ message: 'Không thể tạo môn học' });
   }
 });
 
-// Create schedule
-router.post('/', auth, [
-  body('subject').trim().isLength({ min: 1, max: 100 }).withMessage('Subject is required'),
-  body('dayOfWeek').isInt({ min: 2, max: 8 }).withMessage('Invalid day of week'),
-  body('startTime').matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage('Invalid start time'),
-  body('endTime').matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage('Invalid end time'),
-  body('session').isIn(['morning', 'afternoon', 'evening']).withMessage('Invalid session'),
-  body('startDate').isISO8601().withMessage('Invalid start date'),
-  body('endDate').optional({ checkFalsy: true }).isISO8601().withMessage('Invalid end date'),
-  body('repeat').optional().isIn(['none', 'daily', 'weekly', 'monthly']),
-  body('repeatEndDate').optional({ checkFalsy: true }).isISO8601().withMessage('Invalid repeat end date')
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array()[0].msg });
-    }
-
-    // Validate end time is after start time
-    if (req.body.startTime >= req.body.endTime) {
-      return res.status(400).json({ error: 'End time must be after start time' });
-    }
-
-    // Validate end date is after start date if provided
-    if (req.body.endDate && new Date(req.body.endDate) <= new Date(req.body.startDate)) {
-      return res.status(400).json({ error: 'End date must be after start date' });
-    }
-
-    const parseDateOnly = (dateValue) => {
-      return dateValue ? new Date(`${dateValue}T00:00`) : null;
-    };
-
-    const schedule = new Schedule({
-      ...req.body,
-      userId: req.userId,
-      startDate: parseDateOnly(req.body.startDate),
-      endDate: parseDateOnly(req.body.endDate),
-      repeatEndDate: parseDateOnly(req.body.repeatEndDate)
-    });
-    await schedule.save();
-    res.status(201).json(schedule);
-  } catch (error) {
-    console.error('Create schedule error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Update schedule
+// @route   PUT /api/schedules/:id
+// @desc    Sửa môn học
 router.put('/:id', auth, async (req, res) => {
   try {
-    const schedule = await Schedule.findOneAndUpdate(
-      { _id: req.params.id, userId: req.userId },
-      { ...req.body, updatedAt: Date.now() },
-      { new: true, runValidators: true }
-    );
+    const userId = req.user.id || req.user._id;
+    const { subject, room, dayOfWeek, session, startTime, endTime, color } = req.body;
+
+    const schedule = await Schedule.findOne({ _id: req.params.id, userId });
+
     if (!schedule) {
-      return res.status(404).json({ error: 'Schedule not found' });
+      return res.status(404).json({ message: 'Không tìm thấy môn học' });
     }
-    res.json(schedule);
+
+    schedule.subject = subject ?? schedule.subject;
+    schedule.room = room ?? schedule.room;
+    schedule.dayOfWeek = dayOfWeek ?? schedule.dayOfWeek;
+    schedule.session = session ?? schedule.session;
+    schedule.startTime = startTime ?? schedule.startTime;
+    schedule.endTime = endTime ?? schedule.endTime;
+    schedule.color = color ?? schedule.color;
+
+    const updatedSchedule = await schedule.save();
+    res.json(updatedSchedule);
   } catch (error) {
-    console.error('Update schedule error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Lỗi PUT schedule:', error);
+    res.status(500).json({ message: 'Không thể cập nhật môn học' });
   }
 });
 
-// Delete schedule
+// @route   DELETE /api/schedules/:id
+// @desc    Xóa môn học
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const schedule = await Schedule.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.userId
-    });
-    if (!schedule) {
-      return res.status(404).json({ error: 'Schedule not found' });
-    }
-    res.json({ message: 'Schedule deleted successfully' });
-  } catch (error) {
-    console.error('Delete schedule error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+    const userId = req.user.id || req.user._id;
 
-// Toggle active status
-router.put('/:id/toggle', auth, async (req, res) => {
-  try {
-    const schedule = await Schedule.findOne({ _id: req.params.id, userId: req.userId });
+    const schedule = await Schedule.findOneAndDelete({ _id: req.params.id, userId });
+
     if (!schedule) {
-      return res.status(404).json({ error: 'Schedule not found' });
+      return res.status(404).json({ message: 'Không tìm thấy môn học để xóa' });
     }
-    schedule.isActive = !schedule.isActive;
-    await schedule.save();
-    res.json(schedule);
+
+    res.json({ message: 'Đã xóa môn học thành công' });
   } catch (error) {
-    console.error('Toggle schedule error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Lỗi DELETE schedule:', error);
+    res.status(500).json({ message: 'Không thể xóa môn học' });
   }
 });
 
