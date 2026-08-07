@@ -1,0 +1,14 @@
+# Bỏ qua node_modules ở tất cả các thư mục
+node_modules/
+
+# Bỏ qua file môi trường chứa thông tin bảo mật
+.env
+.env.local
+
+# Bỏ qua thư mục build sản phẩm của frontend
+frontend/build/
+frontend/dist/
+
+# File rác hệ thống
+.DS_Store
+Thumbs.db

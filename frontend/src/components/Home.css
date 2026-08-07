@@ -1,0 +1,255 @@
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-left h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.header-left p {
+  color: #888;
+  font-size: 14px;
+}
+
+.create-note-btn {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.create-note-btn:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.note-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid transparent;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.note-card.pinned {
+  border-color: #667eea;
+}
+
+.note-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.note-icon {
+  font-size: 24px;
+}
+
+.note-card-header h3 {
+  flex: 1;
+  font-size: 16px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-actions-header {
+  display: flex;
+  gap: 4px;
+}
+
+.note-actions-header button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: #999;
+  transition: all 0.2s;
+}
+
+.note-actions-header button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.pinned-icon {
+  color: #667eea !important;
+}
+
+.note-content-preview {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.note-footer {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+}
+
+.note-footer small {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.note-detail {
+  max-width: 600px;
+}
+
+.note-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.note-detail-header h2 {
+  flex: 1;
+  font-size: 22px;
+  color: #333;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 4px 8px;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.note-detail-content {
+  margin-bottom: 20px;
+}
+
+.note-detail-content p {
+  color: #444;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.note-detail-footer {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+.note-detail-footer small {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.icon-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.icon-btn {
+  padding: 8px 12px;
+  font-size: 24px;
+  border: 2px solid #e8ecf1;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.icon-btn.selected {
+  border-color: #667eea;
+  background: #e8edff;
+}
+
+.color-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+}
+
+.color-btn.selected {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+@media (max-width: 768px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .home-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .create-note-btn {
+    justify-content: center;
+  }
+}

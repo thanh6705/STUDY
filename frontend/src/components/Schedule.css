@@ -1,0 +1,397 @@
+.schedule-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.schedule-header h2 {
+  font-size: 24px;
+  color: #333;
+}
+
+.add-schedule-btn {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.add-schedule-btn:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.schedule-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.timetable-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.timetable-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timetable-header h3 {
+  font-size: 18px;
+  color: #333;
+}
+
+.week-navigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.week-navigation button {
+  background: #f0f0f0;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.week-navigation button:hover {
+  background: #667eea;
+  color: white;
+}
+
+.week-navigation span {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.timetable-grid {
+  border: 1px solid #e8ecf1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.timetable-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  border-bottom: 1px solid #e8ecf1;
+}
+
+.timetable-row:last-child {
+  border-bottom: none;
+}
+
+.timetable-cell {
+  padding: 8px;
+  border-right: 1px solid #e8ecf1;
+  text-align: center;
+  font-size: 13px;
+  min-height: 50px;
+}
+
+.timetable-cell:last-child {
+  border-right: none;
+}
+
+.header-row .timetable-cell {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+}
+
+.time-cell {
+  background: #f8f9fa;
+  font-weight: 500;
+  color: #666;
+  min-width: 80px;
+}
+
+.day-cell {
+  font-weight: 600;
+  color: #333;
+}
+
+.day-cell small {
+  font-weight: 400;
+  color: #999;
+  font-size: 11px;
+}
+
+.session-label {
+  grid-column: 1 / -1;
+  padding: 4px 12px;
+  background: #f0f4ff;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 13px;
+  text-align: left;
+}
+
+.subject-cell {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subject-block {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  width: 100%;
+  background: #667eea15;
+  border-left: 3px solid #667eea;
+}
+
+.subject-block strong {
+  font-size: 12px;
+  color: #333;
+}
+
+.subject-block small {
+  font-size: 10px;
+  color: #666;
+}
+
+.calendar-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.react-calendar {
+  width: 100%;
+  border: none;
+  font-size: 14px;
+}
+
+.react-calendar__tile {
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  position: relative;
+}
+
+.tile-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.tile-actions {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.react-calendar__tile:hover .tile-actions {
+  opacity: 1;
+}
+
+.tile-action {
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  color: #667eea;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tile-action:hover {
+  background: #667eea;
+  color: white;
+}
+
+.event-day {
+  background: #f0f4ff !important;
+  border-radius: 8px;
+}
+
+.event-dot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #667eea;
+  border-radius: 50%;
+}
+
+.day-schedules {
+  margin-top: 20px;
+  border-top: 1px solid #e8ecf1;
+  padding-top: 16px;
+}
+
+.day-schedules h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.no-schedule {
+  color: #999;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.schedule-list {
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.subject {
+  font-weight: 500;
+  color: #333;
+}
+
+.time {
+  color: #666;
+  font-size: 13px;
+}
+
+.session-badge {
+  background: #e8ecf1;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #666;
+}
+
+.repeat-badge {
+  background: #f0f4ff;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #667eea;
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.schedule-actions button {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn {
+  color: #667eea;
+}
+
+.edit-btn:hover {
+  background: #f0f4ff;
+}
+
+.delete-btn {
+  color: #e74c3c;
+}
+
+.delete-btn:hover {
+  background: #fde8e8;
+}
+
+@media (max-width: 1024px) {
+  .schedule-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .timetable-row {
+    grid-template-columns: 60px repeat(7, 1fr);
+  }
+  
+  .timetable-cell {
+    font-size: 11px;
+    padding: 4px;
+    min-height: 40px;
+  }
+  
+  .time-cell {
+    min-width: 60px;
+  }
+  
+  .subject-block {
+    font-size: 10px;
+  }
+  
+  .subject-block strong {
+    font-size: 10px;
+  }
+  
+  .schedule-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .add-schedule-btn {
+    justify-content: center;
+  }
+}
