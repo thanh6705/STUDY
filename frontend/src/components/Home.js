@@ -1,27 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaEdit, FaThumbtack, FaSearch, FaFire, FaBookOpen } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Home.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-const ICONS = ['📝', '📚', '💡', '🔬', '📊', '💻', '📐', '🎵', '🎨', '🧪', '📖', '✏️'];
-const COLORS = ['#ffffff', '#ffebee', '#f3e5f5', '#e8eaf6', '#e0f7fa', '#e8f5e9', '#fff3e0', '#fce4ec'];
 
 function Home() {
   const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [editingNote, setEditingNote] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    icon: '📝',
-    color: '#ffffff'
-  });
   const [selectedNote, setSelectedNote] = useState(null);
   const { user, token } = useAuth();
+  const navigate = useNavigate();
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -40,30 +32,6 @@ function Home() {
       fetchNotes();
     }
   }, [fetchNotes, token]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingNote) {
-        await axios.put(`${API_URL}/api/notes/${editingNote._id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Cập nhật ghi chú thành công');
-      } else {
-        await axios.post(`${API_URL}/api/notes`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Tạo ghi chú thành công');
-      }
-      fetchNotes();
-      setShowForm(false);
-      setEditingNote(null);
-      resetForm();
-    } catch (error) {
-      console.error('Error saving note:', error);
-      toast.error('Không thể lưu ghi chú');
-    }
-  };
 
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa ghi chú này?')) {
@@ -93,16 +61,6 @@ function Home() {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      content: '',
-      icon: '📝',
-      color: '#ffffff'
-    });
-  };
-
-  // Lọc ghi chú theo từ khóa tìm kiếm
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     note.content.toLowerCase().includes(searchTerm.toLowerCase())
@@ -110,7 +68,7 @@ function Home() {
 
   return (
     <div className="home-container">
-      {/* Banner Lời chào & Thống kê */}
+      {/* Banner Lời chào */}
       <div className="welcome-banner">
         <div className="welcome-text">
           <h2>Chào {user?.username || 'bạn'}! 👋</h2>
@@ -121,7 +79,7 @@ function Home() {
         </div>
       </div>
 
-      {/* Thanh tìm kiếm & Nút tạo ghi chú */}
+      {/* Thanh tìm kiếm & Nút Tạo ghi chú (Dẫn sang Trang mới) */}
       <div className="home-action-bar">
         <div className="search-box">
           <FaSearch className="search-icon" />
@@ -132,11 +90,7 @@ function Home() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="create-note-btn" onClick={() => {
-          resetForm();
-          setEditingNote(null);
-          setShowForm(true);
-        }}>
+        <button className="create-note-btn" onClick={() => navigate('/app/note/create')}>
           <FaPlus /> Tạo ghi chú
         </button>
       </div>
@@ -151,11 +105,7 @@ function Home() {
             <h3>{searchTerm ? 'Không tìm thấy ghi chú phù hợp' : 'Chưa có ghi chú nào'}</h3>
             <p>{searchTerm ? 'Hãy thử tìm kiếm với từ khóa khác' : 'Lưu lại kiến thức quan trọng hoặc ý tưởng bài học ngay tại đây nhé!'}</p>
             {!searchTerm && (
-              <button className="create-note-btn" onClick={() => {
-                resetForm();
-                setEditingNote(null);
-                setShowForm(true);
-              }}>
+              <button className="create-note-btn" onClick={() => navigate('/app/note/create')}>
                 <FaPlus /> Tạo ghi chú đầu tiên
               </button>
             )}
@@ -172,13 +122,14 @@ function Home() {
                 <span className="note-icon">{note.icon}</span>
                 <h3>{note.title}</h3>
                 <div className="note-actions-header">
-                  <button onClick={(e) => { e.stopPropagation(); handlePin(note); }}>
+                  <button title="Ghim ghi chú" onClick={(e) => { e.stopPropagation(); handlePin(note); }}>
                     <FaThumbtack className={note.isPinned ? 'pinned-icon' : ''} />
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setEditingNote(note); setFormData(note); setShowForm(true); }}>
+                  {/* Nút sửa chuyển hướng sang trang Editor theo ID */}
+                  <button title="Sửa ghi chú" onClick={(e) => { e.stopPropagation(); navigate(`/app/note/edit/${note._id}`); }}>
                     <FaEdit />
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); handleDelete(note._id); }}>
+                  <button title="Xóa ghi chú" onClick={(e) => { e.stopPropagation(); handleDelete(note._id); }}>
                     <FaTrash />
                   </button>
                 </div>
@@ -195,7 +146,7 @@ function Home() {
         )}
       </div>
 
-      {/* Modal Chi tiết Ghi chú */}
+      {/* Modal Chi tiết Ghi chú (Chỉ xem) */}
       {selectedNote && (
         <div className="modal-overlay" onClick={() => setSelectedNote(null)}>
           <div className="modal-content note-detail" onClick={e => e.stopPropagation()}>
@@ -211,81 +162,14 @@ function Home() {
             </div>
             <div className="note-detail-footer">
               <small>Cập nhật: {new Date(selectedNote.updatedAt).toLocaleString('vi-VN')}</small>
+              <button 
+                className="create-note-btn" 
+                style={{ marginLeft: 'auto', padding: '6px 12px', fontSize: '13px' }}
+                onClick={() => navigate(`/app/note/edit/${selectedNote._id}`)}
+              >
+                <FaEdit /> Mở bản sửa đầy đủ
+              </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Form Tạo/Sửa */}
-      {showForm && (
-        <div className="modal-overlay" onClick={() => {
-          setShowForm(false);
-          setEditingNote(null);
-        }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3>{editingNote ? '✏️ Sửa ghi chú' : '📝 Tạo ghi chú mới'}</h3>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Chọn icon</label>
-                <div className="icon-selector">
-                  {ICONS.map(icon => (
-                    <button
-                      key={icon}
-                      type="button"
-                      className={`icon-btn ${formData.icon === icon ? 'selected' : ''}`}
-                      onClick={() => setFormData({...formData, icon})}
-                    >
-                      {icon}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Màu nền</label>
-                <div className="color-selector">
-                  {COLORS.map(color => (
-                    <button
-                      key={color}
-                      type="button"
-                      className={`color-btn ${formData.color === color ? 'selected' : ''}`}
-                      style={{ backgroundColor: color, border: color === '#ffffff' ? '2px solid #ddd' : 'none' }}
-                      onClick={() => setFormData({...formData, color})}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Tiêu đề</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  placeholder="Nhập tiêu đề ghi chú"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Nội dung</label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
-                  placeholder="Nhập nội dung ghi chú..."
-                  rows={8}
-                  required
-                />
-              </div>
-
-              <div className="form-actions">
-                <button type="button" onClick={() => {
-                  setShowForm(false);
-                  setEditingNote(null);
-                }}>Hủy</button>
-                <button type="submit">{editingNote ? 'Cập nhật' : 'Lưu'}</button>
-              </div>
-            </form>
           </div>
         </div>
       )}

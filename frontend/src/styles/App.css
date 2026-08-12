@@ -17,167 +17,46 @@ body {
   min-height: 100vh;
 }
 
-/* ================= 2. MODAL SYSTEM ================= */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: slideUp 0.3s ease;
-}
-
-.modal-content.large {
-  max-width: 800px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* ================= 3. FORM INPUT & BUTTONS ================= */
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  font-size: 14px;
-  color: #475569;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  background: white;
-  color: #1e293b;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-.form-actions button {
-  padding: 10px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.form-actions button:first-child {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.form-actions button:last-child {
-  background: #667eea;
-  color: white;
-}
-
-.form-actions button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-/* ================= 4. HỆ THỐNG DARK MODE ================= */
+/* ================= 2. HỆ THỐNG DARK MODE TOÀN CỤC ================= */
 body.dark-theme {
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --bg-item: #334155;
-  --text-color: #f1f5f9;
-  --border-color: #334155;
+  --bg-main: #0f172a;       /* Nền màn hình chính tối sâu */
+  --bg-card: #1e293b;       /* Nền card/box */
+  --bg-item: #334155;       /* Nền các element phụ */
+  --text-primary: #f8fafc;  /* Chữ sáng chính */
+  --text-secondary: #94a3b8;/* Chữ phụ */
+  --border-color: #334155;  /* Viền xám tối */
 
   background-color: var(--bg-main) !important;
-  color: var(--text-color) !important;
+  color: var(--text-primary) !important;
 }
 
-/* Thẻ card và khung giao diện khi bật Dark Mode */
+/* Ép Card & Box sang nền tối */
 body.dark-theme .sidebar,
 body.dark-theme .profile-card,
 body.dark-theme .settings-card,
 body.dark-theme .empty-state-card,
 body.dark-theme .modal-content,
-body.dark-theme .app-header {
+body.dark-theme .card-box,
+body.dark-theme .pomodoro-container {
   background-color: var(--bg-card) !important;
-  color: var(--text-color) !important;
+  color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Form input khi bật Dark Mode */
-body.dark-theme .form-group input,
-body.dark-theme .form-group textarea,
-body.dark-theme .form-group select {
-  background-color: #0f172a !important;
-  color: #f1f5f9 !important;
-  border-color: #334155 !important;
+/* Ép toàn bộ tiêu đề & chữ trong Card màu sáng */
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6,
+body.dark-theme .settings-item-left h4 {
+  color: var(--text-primary) !important;
 }
 
-body.dark-theme .form-group label {
-  color: #cbd5e1 !important;
-}
-
-/* Phân tử phụ & Sidebar Link */
-body.dark-theme .info-item {
-  background-color: var(--bg-item) !important;
-}
-
-body.dark-theme .sidebar-link {
-  color: #94a3b8;
-}
-
-body.dark-theme .sidebar-link:hover,
-body.dark-theme .sidebar-link.active {
-  background: #334155;
-  color: #818cf8;
+body.dark-theme p,
+body.dark-theme label,
+body.dark-theme .settings-detail {
+  color: var(--text-secondary) !important;
 }

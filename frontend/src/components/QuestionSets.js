@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { FaPlus, FaTrash, FaEdit, FaPlay, FaCheck, FaTimes } from 'react-icons/fa';
+import { 
+  FaPlus, 
+  FaTrash, 
+  FaEdit, 
+  FaPlay, 
+  FaCheck, 
+  FaTimes, 
+  FaChevronLeft, 
+  FaChevronRight,
+  FaList,
+  FaRedo
+} from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './QuestionSets.css';
@@ -24,10 +35,17 @@ function QuestionSets() {
     correctAnswer: 0
   });
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [editingQuestionIndex, setEditingQuestionIndex] = useState(null);
+  
+  const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
+
+  // Quiz State
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [reviewIndex, setReviewIndex] = useState(0);
+
   const { token } = useAuth();
 
   const fetchQuestionSets = useCallback(async () => {
@@ -103,7 +121,9 @@ function QuestionSets() {
       correctAnswer: 0
     });
     setIsAddingQuestion(false);
+    setEditingQuestionIndex(null);
     setShowQuestionList(false);
+    setPreviewQuestionIndex(0);
   };
 
   const startAddQuestion = () => {
@@ -116,11 +136,19 @@ function QuestionSets() {
       options: ['', '', '', ''],
       correctAnswer: 0
     });
+    setEditingQuestionIndex(null);
+    setIsAddingQuestion(true);
+  };
+
+  const startEditQuestion = (index) => {
+    setNewQuestion({ ...formData.questions[index] });
+    setEditingQuestionIndex(index);
     setIsAddingQuestion(true);
   };
 
   const cancelAddQuestion = () => {
     setIsAddingQuestion(false);
+    setEditingQuestionIndex(null);
   };
 
   const saveQuestion = () => {
@@ -133,18 +161,27 @@ function QuestionSets() {
       return;
     }
 
-    setFormData({
-      ...formData,
-      questions: [...formData.questions, { ...newQuestion }]
-    });
+    if (editingQuestionIndex !== null) {
+      const updatedQuestions = [...formData.questions];
+      updatedQuestions[editingQuestionIndex] = { ...newQuestion };
+      setFormData({ ...formData, questions: updatedQuestions });
+      toast.success(`Đã cập nhật câu ${editingQuestionIndex + 1}!`);
+    } else {
+      setFormData({
+        ...formData,
+        questions: [...formData.questions, { ...newQuestion }]
+      });
+      setPreviewQuestionIndex(formData.questions.length);
+      toast.success('Đã thêm câu hỏi!');
+    }
+
     setNewQuestion({
       question: '',
       options: ['', '', '', ''],
       correctAnswer: 0
     });
     setIsAddingQuestion(false);
-    setShowQuestionList(false);
-    toast.success('Đã thêm câu hỏi!');
+    setEditingQuestionIndex(null);
   };
 
   const saveQuestionAndContinue = () => {
@@ -167,13 +204,15 @@ function QuestionSets() {
       correctAnswer: 0
     });
     setIsAddingQuestion(true);
-    setShowQuestionList(false);
     toast.success('Đã thêm câu hỏi! Tiếp tục tạo câu mới.');
   };
 
   const removeQuestion = (index) => {
     const newQuestions = formData.questions.filter((_, i) => i !== index);
     setFormData({ ...formData, questions: newQuestions });
+    if (previewQuestionIndex >= newQuestions.length) {
+      setPreviewQuestionIndex(Math.max(0, newQuestions.length - 1));
+    }
   };
 
   const startQuiz = (set) => {
@@ -182,6 +221,7 @@ function QuestionSets() {
     setSelectedAnswers({});
     setQuizCompleted(false);
     setScore(0);
+    setReviewIndex(0);
   };
 
   const handleAnswerSelect = (optionIndex) => {
@@ -191,25 +231,26 @@ function QuestionSets() {
     });
   };
 
-  const nextQuestion = () => {
-    if (currentQuestionIndex < showQuiz.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      let correct = 0;
-      showQuiz.questions.forEach((q, index) => {
-        if (selectedAnswers[index] === q.correctAnswer) {
-          correct++;
-        }
-      });
-      setScore(correct);
-      setQuizCompleted(true);
-    }
+  const handleFinishQuiz = () => {
+    let correct = 0;
+    showQuiz.questions.forEach((q, index) => {
+      if (selectedAnswers[index] === q.correctAnswer) {
+        correct++;
+      }
+    });
+    setScore(correct);
+    setQuizCompleted(true);
+    setReviewIndex(0);
   };
 
   const renderQuiz = () => {
     if (!showQuiz) return null;
 
     if (quizCompleted) {
+      const reviewQuestion = showQuiz.questions[reviewIndex];
+      const userAns = selectedAnswers[reviewIndex];
+      const isCorrect = userAns === reviewQuestion.correctAnswer;
+
       return (
         <div className="quiz-results">
           <h3>📊 Kết quả ôn tập</h3>
@@ -226,21 +267,80 @@ function QuestionSets() {
              score >= showQuiz.questions.length * 0.6 ? '💪 Khá tốt! Cần cố gắng thêm!' :
              '📖 Bạn cần ôn tập thêm!'}
           </p>
-          <div className="review-answers">
+
+          <div className="review-answers-section">
             <h4>Xem lại đáp án</h4>
-            {showQuiz.questions.map((q, index) => (
-              <div key={index} className="review-item">
-                <p><strong>Câu {index + 1}:</strong> {q.question}</p>
-                <p className={selectedAnswers[index] === q.correctAnswer ? 'correct' : 'incorrect'}>
-                  Đáp án bạn chọn: {q.options[selectedAnswers[index]] || 'Chưa chọn'}
-                </p>
-                {selectedAnswers[index] !== q.correctAnswer && (
-                  <p className="correct-answer">Đáp án đúng: {q.options[q.correctAnswer]}</p>
-                )}
+
+            {/* Chi tiết câu hỏi xem lại */}
+            <div className="review-single-card">
+              <div className="review-card-header">
+                <span className="q-badge">Câu {reviewIndex + 1} / {showQuiz.questions.length}</span>
+                <span className={`status-badge ${isCorrect ? 'correct' : 'incorrect'}`}>
+                  {isCorrect ? 'Đúng' : 'Sai'}
+                </span>
               </div>
-            ))}
+              <h5 className="review-q-text">{reviewQuestion.question}</h5>
+              <div className="review-options">
+                {reviewQuestion.options.map((opt, oIdx) => {
+                  let optClass = 'review-opt';
+                  if (oIdx === reviewQuestion.correctAnswer) optClass += ' correct-target';
+                  if (userAns === oIdx && !isCorrect) optClass += ' user-wrong';
+
+                  return (
+                    <div key={oIdx} className={optClass}>
+                      <span className="opt-prefix">{String.fromCharCode(65 + oIdx)}.</span> {opt}
+                      {oIdx === reviewQuestion.correctAnswer && <FaCheck className="icon-right" />}
+                      {userAns === oIdx && !isCorrect && <FaTimes className="icon-wrong" />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Điều hướng câu xem lại */}
+            <div className="review-navigation">
+              <button
+                type="button"
+                className="nav-btn"
+                disabled={reviewIndex === 0}
+                onClick={() => setReviewIndex(reviewIndex - 1)}
+              >
+                <FaChevronLeft /> Câu trước
+              </button>
+              
+              <div className="jump-input">
+                <span>Đến câu:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max={showQuiz.questions.length}
+                  value={reviewIndex + 1}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) - 1;
+                    if (!isNaN(val) && val >= 0 && val < showQuiz.questions.length) {
+                      setReviewIndex(val);
+                    }
+                  }}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="nav-btn"
+                disabled={reviewIndex === showQuiz.questions.length - 1}
+                onClick={() => setReviewIndex(reviewIndex + 1)}
+              >
+                Câu tiếp <FaChevronRight />
+              </button>
+            </div>
           </div>
-          <button className="close-quiz-btn" onClick={() => setShowQuiz(null)}>Đóng</button>
+
+          <div className="results-actions">
+            <button className="retry-btn" onClick={() => startQuiz(showQuiz)}>
+              <FaRedo /> Làm lại bài
+            </button>
+            <button className="close-quiz-btn" onClick={() => setShowQuiz(null)}>Đóng</button>
+          </div>
         </div>
       );
     }
@@ -251,9 +351,10 @@ function QuestionSets() {
         <div className="quiz-header">
           <h3>{showQuiz.name}</h3>
           <div className="progress">
-            Câu {currentQuestionIndex + 1}/{showQuiz.questions.length}
+            Câu {currentQuestionIndex + 1} / {showQuiz.questions.length}
           </div>
         </div>
+
         <div className="question-container">
           <h4>{question.question}</h4>
           <div className="options-container">
@@ -263,23 +364,63 @@ function QuestionSets() {
                 className={`option-btn ${selectedAnswers[currentQuestionIndex] === index ? 'selected' : ''}`}
                 onClick={() => handleAnswerSelect(index)}
               >
-                {String.fromCharCode(65 + index)}. {option}
+                <span className="opt-letter">{String.fromCharCode(65 + index)}</span>
+                <span className="opt-text">{option}</span>
               </button>
             ))}
           </div>
         </div>
-        <div className="quiz-navigation">
-          <button 
-            className="next-btn"
-            onClick={nextQuestion}
-            disabled={selectedAnswers[currentQuestionIndex] === undefined}
+
+        {/* Điều hướng làm bài */}
+        <div className="quiz-navigation-bar">
+          <button
+            type="button"
+            className="nav-btn"
+            onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+            disabled={currentQuestionIndex === 0}
           >
-            {currentQuestionIndex === showQuiz.questions.length - 1 ? 'Hoàn thành' : 'Tiếp theo'}
+            <FaChevronLeft /> Trước
           </button>
+
+          <div className="jump-input">
+            <span>Đến câu:</span>
+            <input
+              type="number"
+              min="1"
+              max={showQuiz.questions.length}
+              value={currentQuestionIndex + 1}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) - 1;
+                if (!isNaN(val) && val >= 0 && val < showQuiz.questions.length) {
+                  setCurrentQuestionIndex(val);
+                }
+              }}
+            />
+          </div>
+
+          {currentQuestionIndex < showQuiz.questions.length - 1 ? (
+            <button
+              type="button"
+              className="nav-btn primary"
+              onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+            >
+              Tiếp <FaChevronRight />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="finish-btn"
+              onClick={handleFinishQuiz}
+            >
+              Nộp bài
+            </button>
+          )}
         </div>
       </div>
     );
   };
+
+  const previewQuestion = formData.questions[previewQuestionIndex];
 
   return (
     <div className="question-sets-container">
@@ -288,7 +429,6 @@ function QuestionSets() {
         <button className="create-set-btn" onClick={() => {
           resetForm();
           setEditingSet(null);
-          setShowQuestionList(false);
           setShowForm(true);
         }}>
           <FaPlus /> Tạo đề mới
@@ -319,7 +459,8 @@ function QuestionSets() {
                     description: set.description || '',
                     questions: JSON.parse(JSON.stringify(set.questions))
                   });
-                  setShowQuestionList(false);
+                  setPreviewQuestionIndex(0);
+                  setShowQuestionList(true);
                   setShowForm(true);
                 }}>
                   <FaEdit /> Sửa
@@ -388,32 +529,33 @@ function QuestionSets() {
                         className="toggle-question-list-btn"
                         onClick={() => setShowQuestionList(!showQuestionList)}
                       >
-                        {showQuestionList ? 'Ẩn chi tiết' : 'Xem chi tiết'}
+                        <FaList /> {showQuestionList ? 'Ẩn xem lại' : 'Xem chi tiết'}
                       </button>
                     )}
                   </div>
                 </div>
 
-                {formData.questions.length > 0 && !showQuestionList && (
-                  <div className="questions-summary">
-                    Đã thêm {formData.questions.length} câu hỏi. Vui lòng lưu để xem chi tiết.
-                  </div>
-                )}
-
+                {/* Form Nhập/Sửa câu hỏi */}
                 {isAddingQuestion && (
                   <div className="add-question-form">
-                    <div className="question-number">
-                      <h4>Câu {formData.questions.length + 1}</h4>
+                    <div className="preview-card-header">
+                      <span className="q-badge">
+                        {editingQuestionIndex !== null ? `Sửa Câu ${editingQuestionIndex + 1}` : `Câu ${formData.questions.length + 1}`}
+                      </span>
                     </div>
-                    <div className="form-group">
-                      <label>Câu hỏi</label>
-                      <input
-                        type="text"
+
+                    {/* Dùng Textarea rộng rãi hỗ trợ câu hỏi dài */}
+                    <div className="form-group" style={{ marginTop: '12px' }}>
+                      <label>Nội dung câu hỏi</label>
+                      <textarea
+                        className="question-textarea"
                         value={newQuestion.question}
                         onChange={(e) => setNewQuestion({...newQuestion, question: e.target.value})}
-                        placeholder="Nhập câu hỏi"
+                        placeholder="Nhập câu hỏi (hỗ trợ văn bản dài)..."
+                        rows={3}
                       />
                     </div>
+
                     <div className="form-group">
                       <label>Các đáp án</label>
                       {newQuestion.options.map((option, index) => (
@@ -431,6 +573,7 @@ function QuestionSets() {
                           <label className="correct-label">
                             <input
                               type="radio"
+                              name="correctAnswer"
                               checked={newQuestion.correctAnswer === index}
                               onChange={() => setNewQuestion({...newQuestion, correctAnswer: index})}
                             />
@@ -439,59 +582,113 @@ function QuestionSets() {
                         </div>
                       ))}
                     </div>
+
                     <div className="form-actions">
-                      <button type="button" onClick={cancelAddQuestion}>Hủy</button>
-                      <button type="button" onClick={saveQuestion}>
+                      <button type="button" className="btn-cancel" onClick={cancelAddQuestion}>Hủy</button>
+                      <button type="button" className="btn-save" onClick={saveQuestion}>
                         <FaCheck /> Hoàn tất
                       </button>
-                      <button type="button" onClick={saveQuestionAndContinue}>
-                        <FaCheck /> Thêm và tiếp tục
-                      </button>
+                      {editingQuestionIndex === null && (
+                        <button type="button" className="btn-save-more" onClick={saveQuestionAndContinue}>
+                          <FaPlus /> Lưu & Thêm tiếp
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
 
-                {formData.questions.length > 0 && showQuestionList && (
-                  <div className="questions-list">
-                    {formData.questions.map((q, index) => (
-                      <div key={index} className="question-preview">
-                        <div className="question-preview-header">
-                          <span className="q-number">Câu {index + 1}</span>
-                          <button 
-                            type="button"
-                            onClick={() => removeQuestion(index)}
-                          >
-                            <FaTrash />
-                          </button>
+                {/* Chế độ Xem & Chuyển câu */}
+                {formData.questions.length > 0 && showQuestionList && !isAddingQuestion && (
+                  <div className="questions-browser-view">
+                    {previewQuestion && (
+                      <div className="preview-single-card">
+                        <div className="preview-card-header">
+                          <span className="q-badge">Câu {previewQuestionIndex + 1} / {formData.questions.length}</span>
+                          <div className="q-actions">
+                            <button 
+                              type="button" 
+                              className="edit-q-btn" 
+                              onClick={() => startEditQuestion(previewQuestionIndex)}
+                            >
+                              <FaEdit /> Sửa
+                            </button>
+                            <button 
+                              type="button" 
+                              className="delete-q-btn" 
+                              onClick={() => removeQuestion(previewQuestionIndex)}
+                            >
+                              <FaTrash /> Xóa
+                            </button>
+                          </div>
                         </div>
-                        <p className="q-text">{q.question}</p>
-                        <div className="q-options">
-                          {q.options.map((opt, oi) => (
-                            <span key={oi} className={`q-option ${q.correctAnswer === oi ? 'correct' : ''}`}>
-                              {String.fromCharCode(65 + oi)}. {opt}
-                            </span>
+
+                        <p className="q-preview-text">{previewQuestion.question}</p>
+
+                        <div className="q-preview-options">
+                          {previewQuestion.options.map((opt, oi) => (
+                            <div key={oi} className={`q-preview-opt ${previewQuestion.correctAnswer === oi ? 'correct' : ''}`}>
+                              <span className="opt-code">{String.fromCharCode(65 + oi)}.</span> {opt}
+                            </div>
                           ))}
                         </div>
+
+                        {/* Thanh điều hướng câu */}
+                        <div className="card-navigation">
+                          <button
+                            type="button"
+                            className="nav-btn"
+                            disabled={previewQuestionIndex === 0}
+                            onClick={() => setPreviewQuestionIndex(previewQuestionIndex - 1)}
+                          >
+                            <FaChevronLeft /> Câu trước
+                          </button>
+
+                          <div className="jump-input">
+                            <span>Đến câu:</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max={formData.questions.length}
+                              value={previewQuestionIndex + 1}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value) - 1;
+                                if (!isNaN(val) && val >= 0 && val < formData.questions.length) {
+                                  setPreviewQuestionIndex(val);
+                                }
+                              }}
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            className="nav-btn"
+                            disabled={previewQuestionIndex === formData.questions.length - 1}
+                            onClick={() => setPreviewQuestionIndex(previewQuestionIndex + 1)}
+                          >
+                            Câu tiếp <FaChevronRight />
+                          </button>
+                        </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
                 {formData.questions.length === 0 && !isAddingQuestion && (
-                  <p className="empty-questions">Chưa có câu hỏi nào. Hãy thêm câu hỏi!</p>
+                  <p className="empty-questions">Chưa có câu hỏi nào. Hãy bấm "Thêm câu hỏi" để bắt đầu!</p>
                 )}
               </div>
 
               <div className="form-actions">
-                <button type="button" onClick={() => {
+                <button type="button" className="btn-cancel" onClick={() => {
                   setShowForm(false);
                   setEditingSet(null);
                 }}>Hủy</button>
                 <button 
                   type="submit"
+                  className="btn-submit"
                   disabled={formData.questions.length === 0}
                 >
-                  {editingSet ? 'Cập nhật đề ôn luyện' : 'Lưu đề ôn luyện'}
+                  {editingSet ? 'Cập nhật đề' : 'Lưu đề ôn luyện'}
                 </button>
               </div>
             </form>

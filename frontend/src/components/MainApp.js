@@ -17,6 +17,7 @@ import QuestionSets from './QuestionSets';
 import Settings from './Settings';
 import { useAuth } from '../context/AuthContext';
 import './MainApp.css';
+import NoteEditor from './NoteEditor';
 
 // Component tạm thời cho Tab Pomodoro
 function PomodoroTab() {
@@ -137,6 +138,8 @@ function MainApp() {
             <Route path="/pomodoro" element={<PomodoroTab />} />
             <Route path="/todo" element={<TodoTab />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/note/create" element={<NoteEditor />} />
+    <Route path="/note/edit/:id" element={<NoteEditor />} />
           </Routes>
         </main>
       </div>

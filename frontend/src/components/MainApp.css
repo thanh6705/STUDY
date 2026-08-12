@@ -210,3 +210,90 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+/* ================= TÍCH HỢP DARK MODE CHO MAINAPP ================= */
+
+/* 1. Sửa lỗi nền màn hình chính không tối */
+body.dark-theme .main-app {
+  background: #0f172a !important;
+}
+
+/* 2. Sửa lỗi nút Sidebar active bị tệp chữ (không đọc được) */
+body.dark-theme .sidebar-link {
+  color: #94a3b8;
+}
+
+body.dark-theme .sidebar-link:hover {
+  background: #334155;
+  color: #818cf8;
+}
+
+body.dark-theme .sidebar-link.active {
+  background: #4f46e5 !important; /* Đổi sang nền xanh tím đậm */
+  color: #ffffff !important;      /* Chữ trắng rõ ràng */
+  font-weight: 600;
+}
+
+body.dark-theme .sidebar-link.active svg {
+  color: #ffffff !important;
+}
+
+/* 3. Đảm bảo Sidebar màu tối chuẩn */
+body.dark-theme .sidebar {
+  background-color: #1e293b !important;
+  border-right: 1px solid #334155;
+}
+
+body.dark-theme .sidebar-header {
+  border-bottom: 1px solid #334155;
+}
+/* ================= HỖ TRỢ DARK MODE CHO TRANG EDIT GHI CHÚ ================= */
+body.dark-theme .note-editor-container {
+  color: #f8fafc;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .editor-top-bar {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+body.dark-theme .back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .editor-title-status {
+  color: #cbd5e1;
+}
+
+body.dark-theme .editor-toolbar {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: #334155;
+}
+
+body.dark-theme .toolbar-section label {
+  color: #cbd5e1;
+}
+
+body.dark-theme .quick-tools button {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+body.dark-theme .quick-tools button:hover {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+body.dark-theme .editor-title-input {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+body.dark-theme .editor-footer-bar {
+  border-top-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}

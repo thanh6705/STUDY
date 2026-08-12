@@ -109,12 +109,12 @@
   cursor: pointer;
   transition: all 0.3s;
   border: 1px solid transparent;
-  color: #333; /* Giữ màu chữ cố định cho thẻ ghi chú có màu nền */
+  color: #333; /* Giữ màu chữ tối cố định cho thẻ có nền màu */
 }
 
 .note-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .note-card.pinned {
@@ -225,7 +225,29 @@
   margin-bottom: 20px;
 }
 
-/* Modals */
+/* Modal Xem Chi Tiết */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+}
+
+.modal-content {
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
 .note-detail {
   max-width: 600px;
 }
@@ -254,6 +276,8 @@
 
 .note-detail-content {
   margin-bottom: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .note-detail-content p {
@@ -263,48 +287,15 @@
 }
 
 .note-detail-footer {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   padding-top: 12px;
+  display: flex;
+  align-items: center;
 }
 
 .note-detail-footer small {
-  color: #aaa;
+  color: #888;
   font-size: 12px;
-}
-
-.icon-selector, .color-selector {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.icon-btn {
-  padding: 8px 12px;
-  font-size: 24px;
-  border: 2px solid #e8ecf1;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.icon-btn.selected {
-  border-color: #667eea;
-  background: #e8edff;
-}
-
-.color-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.color-btn.selected {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 @media (max-width: 768px) {
